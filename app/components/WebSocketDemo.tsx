@@ -8,6 +8,7 @@ import '@xterm/xterm/css/xterm.css';
 export default function WebSocketDemo() {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminalInstance = useRef<Terminal | null>(null);
@@ -36,7 +37,7 @@ export default function WebSocketDemo() {
 
       socketInstance.on('connect', () => {
         console.log('Connected to WebSocket');
-        socketInstance.emit('message', JSON.stringify({lab: 'lab1', playbookID: '123'}));
+        socketInstance.emit('message', JSON.stringify({ lab: 'lab1', playbookID: '123' }));
         setIsConnected(true);
       });
 
@@ -73,11 +74,15 @@ export default function WebSocketDemo() {
   }, []);
 
   const sendMessage = (data: string) => {
-    console.log('Sending message:', data);
-    if (socket) {
-      console.log('Sending message:', data.trim());
-      socket.emit('message', JSON.stringify({lab: 'lab1', playbookID: '123'}));
-    }
+    // console.log('Sending message:', data);
+    // if (socket) {
+    //   console.log('Sending message:', data.trim());
+    //   socket.emit('message', JSON.stringify({ lab: 'lab1', playbookID: '123' }));
+    // }
+    fetch('/api/playbook', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: '123', name: 'network', content: data }),
+    });
   };
 
   const handleData = (data: string) => {
@@ -99,20 +104,64 @@ export default function WebSocketDemo() {
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <div
-          ref={terminalRef}
-          className="terminal-container"
-          style={{
-            width: '800px',
-            height: '400px',
-            backgroundColor: '#000',
-            padding: '10px',
-            borderRadius: '5px'
-          }}
+    <>
+      <div className="App">
+        <header className="App-header">
+          <div
+            ref={terminalRef}
+            className="terminal-container"
+            style={{
+              width: '800px',
+              height: '400px',
+              backgroundColor: '#000',
+              padding: '10px',
+              borderRadius: '5px'
+            }}
+          />
+        </header>
+      </div>
+      <div className="p-4 border rounded-lg shadow-md max-w-md mx-auto">
+      <h2 className="text-xl font-bold mb-4">WebSocket Demo</h2>
+      
+      <div className="mb-4">
+        <div className="flex items-center mb-2">
+          <div 
+            className={`w-3 h-3 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
+          ></div>
+          <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+        </div>
+      </div>
+
+      <div className="mb-4 h-60 overflow-y-auto border rounded p-2 bg-gray-50">
+        {messages.length === 0 ? (
+          <p className="text-gray-500 italic">No messages yet</p>
+        ) : (
+          messages.map((msg, index) => (
+            <div key={index} className="mb-2 p-2 bg-white rounded shadow-sm">
+              {msg}
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="flex">
+        <textarea
+          // type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && sendMessage(message)}
+          placeholder="Type a message..."
+          className="flex-1 p-2 border rounded-l focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-      </header>
+        <button
+          onClick={() => sendMessage(message)}
+          disabled={!isConnected || !message.trim()}
+          className="bg-blue-500 text-white px-4 py-2 rounded-r hover:bg-blue-600 disabled:bg-gray-300"
+        >
+          Send
+        </button>
+      </div>
     </div>
-  );
+    </>
+  )
 } 

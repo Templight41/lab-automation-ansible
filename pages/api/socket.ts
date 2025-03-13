@@ -9,6 +9,7 @@ import { getAllSystems, getSystemByLab } from '@/lib/db/System';
 import { toYaml } from '@/lib/tools/toYaml';
 import path from 'path';
 import { getPlaybookById } from '@/lib/db/Playbook';
+import { getAllCredentials } from '@/lib/db/Credential';
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     // Check if socket.io server is already initialized
@@ -54,8 +55,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
                 io.emit('message', systems.error);
                 return;
             }
+            
+            const credentials = await getAllCredentials();
+            if ('error' in credentials) {
+                io.emit('message', credentials.error);
+                return;
+            }
 
-            const inventory = toYaml(systems);
+            const inventory = toYaml(systems, credentials);
 
             const inventoryPath = path.join(process.cwd(), 'inventory.yaml');
             if (!writeFile(inventoryPath, inventory)) {
@@ -77,7 +84,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
             const command = `ansible-playbook -i ${inventoryPath} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`;
             io.emit('message', command);
-            
+
             const ptyProcess = spawnTerminal(command);
 
             ptyProcess.onData((data: string) => {

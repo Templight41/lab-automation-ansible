@@ -59,10 +59,11 @@ export async function createCredential(credential: CredentialType) {
     }
 }
 
-export async function updateCredential(id: string, credential: CredentialType) {
+export async function updateCredential(credential: CredentialType) {
     try {
         await connectDB();
-        const updatedCredential = await Credential.findOneAndUpdate({ id }, credential, { new: true });
+        const { lab } = credential;
+        const updatedCredential = await Credential.findOneAndUpdate({ lab }, credential, { new: true });
         if (!updatedCredential) {
             throw new Error('Failed to update credential');
         }
@@ -75,16 +76,16 @@ export async function updateCredential(id: string, credential: CredentialType) {
     }
 }
 
-export async function deleteCredential(id: string) {
+export async function deleteCredential(lab: string) {
     try {
         await connectDB();
-        const deletedCredential = await Credential.findOneAndDelete({ id });
+        const deletedCredential = await Credential.findOneAndDelete({ lab });
         if (!deletedCredential) {
             return { error: 'Credential not found' };
         }
         return {
             message: 'Credential deleted successfully', deletedCredential: {
-                id: deletedCredential.id,
+                lab: deletedCredential.lab,
                 username: deletedCredential.username,
             }
         };

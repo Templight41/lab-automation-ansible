@@ -1,6 +1,14 @@
 all:
   hosts:
     127.0.0.1:
+      ansible_user: ubuntu
+      ansible_ssh_pass: asd
       ansible_become: true
+      ansible_become_pass: asd
+      ansible_become_user: ubuntu
     127.0.0.2:
+      ansible_user: ubuntu
+      ansible_ssh_pass: asd
       ansible_become: true
+      ansible_become_pass: asd
+      ansible_become_user: ubuntu

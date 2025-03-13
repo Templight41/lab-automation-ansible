@@ -14,21 +14,23 @@ interface Inventory {
     };
 }
 
-export const toYaml = (data: Array<any>) => {
+export const toYaml = (data: Array<any>, credentials: Array<any>) => {
     const inventoryContent: Inventory = {
         all: {
             hosts: {}
         }
     };
+    console.log(data);
+    console.log(credentials);
 
     data.forEach(item => {
         if (item.address && !inventoryContent.all.hosts[item.address]) {
             inventoryContent.all.hosts[item.address] = {
-                ansible_user: process.env.USERNAME,
-                ansible_ssh_pass: process.env.PASSWORD,
+                ansible_user: credentials.find(user => user.lab === item.lab)?.username,
+                ansible_ssh_pass: credentials.find(user => user.lab === item.lab)?.password,
                 ansible_become: true,
-                ansible_become_pass: process.env.PASSWORD,
-                ansible_become_user: process.env.USERNAME
+                ansible_become_pass: credentials.find(user => user.lab === item.lab)?.password,
+                ansible_become_user: credentials.find(user => user.lab === item.lab)?.username
             };
         }
     });
