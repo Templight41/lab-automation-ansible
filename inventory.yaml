@@ -1,0 +1,6 @@
+all:
+  hosts:
+    127.0.0.1:
+      ansible_become: true
+    127.0.0.2:
+      ansible_become: true
