@@ -1,11 +1,17 @@
 import Credential, { Credential as CredentialType } from './schema/credential';
 import { connectDB, disconnectDB } from './DBConnection';
 
+import { encrypt, decrypt } from '../tools/encryption';
+
 export async function getAllCredentials() {
     try {
         await connectDB();
         const credentials = await Credential.find();
-        return credentials;
+        const decryptedCredentials = credentials.map(credential => {
+            const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
+            return { lab: credential.lab, username: credential.username, password: decryptedPassword };
+        });
+        return decryptedCredentials;
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credentials' };
@@ -21,7 +27,8 @@ export async function getCredentialById(id: string) {
         if (!credential) {
             return { error: 'Credential not found' };
         }
-        return credential;
+        const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
+        return { lab: credential.lab, username: credential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credential' };
@@ -37,7 +44,8 @@ export async function getCredentialByUsername(username: string) {
         if (!credential) {
             return { error: 'Credential not found' };
         }
-        return credential;
+        const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
+        return { lab: credential.lab, username: credential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credential' };
@@ -49,8 +57,19 @@ export async function getCredentialByUsername(username: string) {
 export async function createCredential(credential: CredentialType) {
     try {
         await connectDB();
-        const newCredential = await Credential.create(credential);
-        return newCredential;
+        const { lab, password } = credential;
+
+        const existingCredential = await Credential.findOne({ lab });
+
+        if (existingCredential) {
+            return { error: 'Credential already exists' };
+        }
+        if (!password) {
+            return { error: 'Password is required' };
+        }
+        const encryptedPassword = encrypt(password);
+        const newCredential = await Credential.create({ ...credential, password: encryptedPassword });
+        return { lab: newCredential.lab, username: newCredential.username, password: encryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to create credential' };
@@ -62,12 +81,23 @@ export async function createCredential(credential: CredentialType) {
 export async function updateCredential(credential: CredentialType) {
     try {
         await connectDB();
-        const { lab } = credential;
-        const updatedCredential = await Credential.findOneAndUpdate({ lab }, credential, { new: true });
+        const { lab, password } = credential;
+        if (!password) {
+            return { error: 'Password is required' };
+        }
+
+        const existingCredential = await Credential.findOne({ lab });
+        if (!existingCredential) {
+            return { error: 'Credential not found' };
+        }
+
+        const encryptedPassword = encrypt(password);
+        const updatedCredential = await Credential.findOneAndUpdate({ lab }, { ...credential, password: encryptedPassword }, { new: true });
         if (!updatedCredential) {
             throw new Error('Failed to update credential');
         }
-        return updatedCredential;
+        const decryptedPassword = decrypt(updatedCredential.password.encryptedData, updatedCredential.password.iv);
+        return { lab: updatedCredential.lab, username: updatedCredential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to update credential' };

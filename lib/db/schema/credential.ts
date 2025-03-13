@@ -1,9 +1,21 @@
 import mongoose from 'mongoose';
 
 const credentialSchema = new mongoose.Schema({
-    lab: String,
-    username: String,
-    password: String
+    lab: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    username: {
+        type: String,
+        required: true,
+    },
+    password: {
+        type: Object,
+        required: true,
+        iv: String,
+        encryptedData: String
+    }
 });
 
 
