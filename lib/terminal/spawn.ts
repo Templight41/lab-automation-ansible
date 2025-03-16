@@ -1,11 +1,25 @@
 import { spawn } from 'node-pty';
 
-export const spawnTerminal = (command: string) => {
+interface TerminalOptions {
+    cols?: number;
+    rows?: number;
+    cwd?: string;
+    env?: NodeJS.ProcessEnv;
+}
+
+export const spawnTerminal = (command: string, options: TerminalOptions = {}) => {
+    const {
+        cols = 80,
+        rows = 24,
+        cwd = process.cwd(),
+        env = process.env
+    } = options;
+
     return spawn('bash', ['-c', command.toString()], {
         name: 'xterm-color',
-        // cols: 80,
-        // rows: 30,
-        cwd: process.cwd(),
-        env: process.env
+        cols,
+        rows,
+        cwd,
+        env
     });
 };

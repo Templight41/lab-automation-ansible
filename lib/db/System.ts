@@ -1,6 +1,7 @@
 import System from './schema/system';
 import { System as SystemType } from './schema/system';
 import { connectDB, disconnectDB } from './DBConnection';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function getAllSystems() {
     try {
@@ -15,7 +16,7 @@ export async function getAllSystems() {
         console.error(error);
         return { error: 'Failed to fetch systems' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -32,7 +33,7 @@ export async function getSystemById(id: string) {
         console.error(error);
         return { error: 'Failed to fetch system' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -49,7 +50,7 @@ export async function getSystemByLab(lab: string) {
         console.error(error);
         return { error: 'Failed to fetch systems' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -66,14 +67,14 @@ export async function getSystemByAddress(address: string) {
         console.error(error);
         return { error: 'Failed to fetch systems' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }   
 
 export async function createSystem(system: SystemType) {
     try {
         await connectDB();
-        const newSystem = await System.create(system);
+        const newSystem = await System.create({...system, id: uuidv4()});
         return {
             id: newSystem.id,
             lab: newSystem.lab,
@@ -83,7 +84,7 @@ export async function createSystem(system: SystemType) {
         console.error(error);
         return { error: 'Failed to create system' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -104,7 +105,7 @@ export async function updateSystem(system: SystemType) {
         console.error(error);
         return { error: 'Failed to update system' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -124,7 +125,7 @@ export async function deleteSystem(id: string) {
         console.error(error);
         return { error: 'Failed to delete system' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 

@@ -1,6 +1,6 @@
 import Credential, { Credential as CredentialType } from './schema/credential';
 import { connectDB, disconnectDB } from './DBConnection';
-
+import { v4 as uuidv4 } from 'uuid';
 import { encrypt, decrypt } from '../tools/encryption';
 
 export async function getAllCredentials() {
@@ -9,31 +9,31 @@ export async function getAllCredentials() {
         const credentials = await Credential.find();
         const decryptedCredentials = credentials.map(credential => {
             const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
-            return { lab: credential.lab, username: credential.username, password: decryptedPassword };
+            return { id: credential.id, lab: credential.lab, username: credential.username, password: decryptedPassword };
         });
         return decryptedCredentials;
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credentials' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
-export async function getCredentialById(id: string) {
+export async function getCredentialByLab(lab: string) {
     try {
         await connectDB();
-        const credential = await Credential.findOne({ id });
+        const credential = await Credential.findOne({ lab });
         if (!credential) {
             return { error: 'Credential not found' };
         }
         const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
-        return { lab: credential.lab, username: credential.username, password: decryptedPassword };
+        return { id: credential.id, lab: credential.lab, username: credential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -45,12 +45,12 @@ export async function getCredentialByUsername(username: string) {
             return { error: 'Credential not found' };
         }
         const decryptedPassword = decrypt(credential.password.encryptedData, credential.password.iv);
-        return { lab: credential.lab, username: credential.username, password: decryptedPassword };
+        return { id: credential.id, lab: credential.lab, username: credential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to fetch credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -68,13 +68,13 @@ export async function createCredential(credential: CredentialType) {
             return { error: 'Password is required' };
         }
         const encryptedPassword = encrypt(password);
-        const newCredential = await Credential.create({ ...credential, password: encryptedPassword });
-        return { lab: newCredential.lab, username: newCredential.username, password: encryptedPassword };
+        const newCredential = await Credential.create({ ...credential, password: encryptedPassword, id: uuidv4() });
+        return { id: newCredential.id, lab: newCredential.lab, username: newCredential.username, password: encryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to create credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -97,12 +97,12 @@ export async function updateCredential(credential: CredentialType) {
             throw new Error('Failed to update credential');
         }
         const decryptedPassword = decrypt(updatedCredential.password.encryptedData, updatedCredential.password.iv);
-        return { lab: updatedCredential.lab, username: updatedCredential.username, password: decryptedPassword };
+        return { id: updatedCredential.id, lab: updatedCredential.lab, username: updatedCredential.username, password: decryptedPassword };
     } catch (error) {
         console.error(error);
         return { error: 'Failed to update credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -115,6 +115,7 @@ export async function deleteCredential(lab: string) {
         }
         return {
             message: 'Credential deleted successfully', deletedCredential: {
+                id: deletedCredential.id,
                 lab: deletedCredential.lab,
                 username: deletedCredential.username,
             }
@@ -123,7 +124,7 @@ export async function deleteCredential(lab: string) {
         console.error(error);
         return { error: 'Failed to delete credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
@@ -144,13 +145,13 @@ export async function deleteCredentialByUsername(username: string) {
         console.error(error);
         return { error: 'Failed to delete credential' };
     } finally {
-        await disconnectDB();
+        // await disconnectDB();
     }
 }
 
 export default {
     getAllCredentials,
-    getCredentialById,
+    getCredentialByLab,
     getCredentialByUsername,
     createCredential,
     updateCredential,

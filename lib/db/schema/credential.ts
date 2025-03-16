@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 
 const credentialSchema = new mongoose.Schema({
+    id: {
+        type: String,
+        unique: true
+    },
     lab: {
         type: String,
         required: true,

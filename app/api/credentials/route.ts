@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAllCredentials, createCredential, updateCredential, deleteCredential } from '@/lib/db/Credential';
+import { v4 as uuid } from 'uuid';
 
 export async function GET() {
     try {
@@ -16,8 +17,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
-        const { lab, username, password } = await request.json();
-        const credentials = await createCredential({ lab, username, password });
+        const { lab, username, password, id = uuid() } = await request.json();
+        const credentials = await createCredential({ id, lab, username, password });
         if ('error' in credentials) {
             return NextResponse.json({ error: credentials.error }, { status: 500 });
         }

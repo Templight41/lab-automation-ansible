@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { deleteSystem, getAllSystems, updateSystem } from '@/lib/db/System';
 
 export async function GET() {
-    const inventory = await getAllSystems();
-    
-    return NextResponse.json({
-        message: 'Inventory fetched successfully',
-        timestamp: new Date().toISOString(),
-        inventory
-    });
+    try {
+        const inventory = await getAllSystems();
+        return NextResponse.json(inventory);
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: 'Failed to fetch inventory' }, { status: 500 });
+    }
 }
 
 export async function PUT(request: Request) {
