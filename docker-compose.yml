@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    image: lab-automation-ansible
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongo:27017/lab-automation
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      - mongo
+    networks:
+      - lab-network
+    hostname: lab-app
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:latest
+    # ports:
+    #   - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - lab-network
+    hostname: mongo
+    restart: unless-stopped
+
+networks:
+  lab-network:
+    driver: bridge
+    internal: true
+
+volumes:
+  mongo-data:
