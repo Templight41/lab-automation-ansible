@@ -4,9 +4,9 @@ FROM python:3.8-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Install Node.js, npm, and Ansible dependencies in a single layer
+# Install Node.js, npm, Ansible dependencies, and build tools in a single layer
 RUN apt-get update && \
-    apt-get install -y curl gnupg sshpass && \
+    apt-get install -y curl gnupg sshpass make gcc g++ python3-dev && \
     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get update && \
     apt-get install -y nodejs && \
@@ -23,8 +23,7 @@ RUN npm install --legacy-peer-deps
 COPY . ./
 
 # Build the NextJs app
-RUN npm run build && \
-    npm prune --production
+RUN npm run build
 
 # Set up for production
 ENV NODE_ENV=production \

@@ -3,12 +3,14 @@ version: '3.8'
 services:
   app:
     image: lab-automation-ansible
+    build: .
     ports:
-      - "3000:3000"
+      - "8085:3000"
     environment:
       - NODE_ENV=production
       - MONGO_URI=mongodb://mongo:27017/lab-automation
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - HOSTNAME=0.0.0.0
     depends_on:
       - mongo
     networks:
@@ -18,8 +20,6 @@ services:
 
   mongo:
     image: mongo:latest
-    # ports:
-    #   - "27018:27017"
     volumes:
       - mongo-data:/data/db
     networks:
@@ -30,7 +30,7 @@ services:
 networks:
   lab-network:
     driver: bridge
-    internal: true
+    # Remove the internal: true line to make the network accessible
 
 volumes:
   mongo-data:
