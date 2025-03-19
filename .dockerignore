@@ -4,3 +4,8 @@ node_modules
 Dockerfile
 docker-compose.yml
 .dockerignore
+.next
+.github
+inventory.yaml
+playbook.yaml
+.git

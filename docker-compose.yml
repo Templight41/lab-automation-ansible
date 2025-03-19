@@ -11,7 +11,7 @@ services:
       - "30"
     restart: always
   app:
-    image: ghcr.io/OWNER/lab-automation-ansible:latest
+    image: ghcr.io/templight41/lab-automation-ansible:latest
     ports:
       - "8085:3000"
     environment:
