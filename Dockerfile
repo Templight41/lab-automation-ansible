@@ -31,8 +31,8 @@ ENV NODE_ENV=production \
     HOSTNAME="0.0.0.0"
 
 # Copy NextJS standalone build artifacts
-COPY /.next/standalone ./
-COPY /.next/static ./.next/static
+COPY .next/standalone ./
+COPY .next/static ./.next/static
 
 # Expose the port your app runs on
 EXPOSE 3000
