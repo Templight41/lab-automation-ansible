@@ -5,11 +5,15 @@ services:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: 
+    command:
       - "--label-enable"
       - "--interval"
       - "30"
     restart: always
+    networks:
+      - lab-network
+    hostname: watchtower
+
   app:
     image: ghcr.io/templight41/lab-automation-ansible:latest
     ports:
