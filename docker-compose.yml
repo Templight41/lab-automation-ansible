@@ -1,9 +1,17 @@
 version: '3.8'
 
 services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: 
+      - "--label-enable"
+      - "--interval"
+      - "30"
+    restart: always
   app:
-    image: lab-automation-ansible
-    build: .
+    image: ghcr.io/OWNER/lab-automation-ansible:latest
     ports:
       - "8085:3000"
     environment:
@@ -11,6 +19,8 @@ services:
       - MONGO_URI=mongodb://mongo:27017/lab-automation
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - HOSTNAME=0.0.0.0
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
     depends_on:
       - mongo
     networks:
