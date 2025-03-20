@@ -6,6 +6,18 @@ CONFIG_FILE="/etc/lab-automation/config"
 LAB_NAME=""
 SETUP_SERVICE=false
 
+# Check if running with sudo privileges
+check_sudo() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "This script requires sudo privileges to run properly."
+        echo "Please run the script again with sudo: sudo $0 $*"
+        exit 1
+    fi
+}
+
+# Check for sudo permissions right away
+check_sudo "$@"
+
 # Usage information
 usage() {
     echo "Usage: $0 [-s SERVER_URL] [-l LAB_NAME] [-i] [-h]"

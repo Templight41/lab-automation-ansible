@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.7'
 
 services:
   watchtower:
@@ -44,7 +44,6 @@ services:
 networks:
   lab-network:
     driver: bridge
-    # Remove the internal: true line to make the network accessible
 
 volumes:
   mongo-data:
